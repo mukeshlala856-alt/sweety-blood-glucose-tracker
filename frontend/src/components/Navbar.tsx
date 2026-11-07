@@ -17,36 +17,20 @@ export const Navbar: React.FC<NavbarProps> = ({ userName, onLogout }) => {
 
   return (
     <nav className="navbar">
-      <div className="navbar-container">
-        <div className="navbar-brand">
-          <Link to="/" className="brand-logo">
-            <span className="brand-icon">🩸</span>
-            <span className="brand-text">Sweety</span>
-          </Link>
-          <span className="brand-badge">Glucose Tracker</span>
-        </div>
+      <Link to="/" className="navbar-brand">
+        🍯 Sweety Glucose Tracker
+      </Link>
 
-        <div className="nav-links">
-          <Link
-            to="/"
-            className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
-          >
-            Dashboard
-          </Link>
-          <Link
-            to="/reports"
-            className={`nav-link ${location.pathname === '/reports' ? 'active' : ''}`}
-          >
-            Reports
-          </Link>
-        </div>
-
-        <div className="navbar-user">
-          {userName && <span className="user-greeting">Hello, <strong>{userName}</strong></span>}
-          <button onClick={handleLogout} className="btn-logout">
-            Logout
-          </button>
-        </div>
+      <div className="navbar-links">
+        <Link to="/" className={location.pathname === '/' ? 'active' : ''}>
+          Dashboard
+        </Link>
+        <Link to="/reports" className={location.pathname === '/reports' ? 'active' : ''}>
+          Reports
+        </Link>
+        <button onClick={handleLogout} className="btn-danger" style={{ marginLeft: 15 }}>
+          Logout ({userName || 'User'})
+        </button>
       </div>
     </nav>
   );

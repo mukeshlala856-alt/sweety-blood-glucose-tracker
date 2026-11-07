@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/client';
-import { AlertBanner } from '../components/AlertBanner';
 import type { User } from '../types';
+import { AlertBanner } from '../components/AlertBanner';
 
 interface RegisterProps {
   onRegisterSuccess: (user: User) => void;
@@ -20,95 +20,79 @@ export const Register: React.FC<RegisterProps> = ({ onRegisterSuccess }) => {
     e.preventDefault();
     setError('');
 
-    if (!name || !email || !password) {
-      setError('Name, email, and password are required.');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password should be at least 6 characters long.');
-      return;
-    }
-
     try {
       setLoading(true);
       const res = await api.post('/auth/register', { name, email, password });
-      const { token, user } = res.data;
+      localStorage.setItem('sweety_token', res.data.token);
+      localStorage.setItem('sweety_user', JSON.stringify(res.data.user));
 
-      localStorage.setItem('sweety_token', token);
-      localStorage.setItem('sweety_user', JSON.stringify(user));
-
-      onRegisterSuccess(user);
+      onRegisterSuccess(res.data.user);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || 'Registration failed.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <div className="auth-header">
-          <div className="auth-logo">🩸</div>
-          <h2 className="auth-title">Create Account</h2>
-          <p className="auth-subtitle">Join Sweety to manage your daily blood sugar</p>
+    <div className="auth-box">
+      <h2 style={{ textAlign: 'center', marginBottom: 5 }}>Create Account</h2>
+      <p style={{ textAlign: 'center', color: '#666', marginTop: 0, marginBottom: 20 }}>
+        Join Sweety Blood Glucose Tracker
+      </p>
+
+      <AlertBanner type="error" message={error} />
+
+      <form onSubmit={handleRegister}>
+        <div style={{ marginBottom: 15 }}>
+          <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="form-input"
+            style={{ width: '100%', boxSizing: 'border-box' }}
+            required
+          />
         </div>
 
-        {error && <AlertBanner type="error" message={error} />}
-
-        <form onSubmit={handleRegister} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="regName">Full Name</label>
-            <input
-              id="regName"
-              type="text"
-              placeholder="e.g. Mukesh"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="form-input"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="regEmail">Email Address</label>
-            <input
-              id="regEmail"
-              type="email"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="form-input"
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="regPassword">Password</label>
-            <input
-              id="regPassword"
-              type="password"
-              placeholder="At least 6 characters"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="form-input"
-              required
-            />
-          </div>
-
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Creating account...' : 'Sign Up'}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          Already have an account?{' '}
-          <Link to="/login" className="auth-link">
-            Log in
-          </Link>
+        <div style={{ marginBottom: 15 }}>
+          <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-input"
+            style={{ width: '100%', boxSizing: 'border-box' }}
+            required
+          />
         </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <label style={{ display: 'block', marginBottom: 5, fontWeight: 'bold' }}>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="form-input"
+            style={{ width: '100%', boxSizing: 'border-box' }}
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="btn btn-primary"
+          style={{ width: '100%', marginBottom: 15 }}
+          disabled={loading}
+        >
+          {loading ? 'Creating...' : 'Sign Up'}
+        </button>
+      </form>
+
+      <div style={{ textAlign: 'center', fontSize: '0.9rem' }}>
+        Already have an account? <Link to="/login">Sign in here</Link>
       </div>
     </div>
   );

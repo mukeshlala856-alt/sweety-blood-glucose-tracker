@@ -5,9 +5,8 @@ import {
   Line,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
-  ReferenceLine,
+  Tooltip,
 } from 'recharts';
 import type { Reading } from '../types';
 
@@ -16,60 +15,33 @@ interface GlucoseChartProps {
 }
 
 export const GlucoseChart: React.FC<GlucoseChartProps> = ({ readings }) => {
-  if (!readings || readings.length === 0) {
-    return null;
-  }
+  if (!readings || readings.length === 0) return null;
 
-  // Sort readings chronologically (oldest to newest) for chart timeline
+  // Format data for chart (sorted oldest to newest)
   const chartData = [...readings]
-    .sort((a, b) => new Date(a.reading_date).getTime() - new Date(b.reading_date).getTime() || a.id - b.id)
+    .sort((a, b) => new Date(a.reading_date).getTime() - new Date(b.reading_date).getTime())
     .map((r) => ({
       date: r.reading_date.slice(5), // 'MM-DD'
-      fullDate: r.reading_date,
-      slot: r.time_slot,
       value: r.glucose_value,
+      slot: r.time_slot,
     }));
 
   return (
-    <div className="chart-card">
-      <div className="chart-header">
-        <h3 className="chart-title">📈 Blood Glucose Trend</h3>
-        <span className="chart-subtitle">Normal target range: 70 - 180 mg/dl</span>
-      </div>
-
-      <div style={{ width: '100%', height: 280 }}>
+    <div className="card">
+      <h3 className="card-title">Glucose Readings Trend</h3>
+      <div style={{ width: '100%', height: 220 }}>
         <ResponsiveContainer>
-          <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="date" stroke="#64748b" fontSize={12} />
-            <YAxis domain={[40, 300]} stroke="#64748b" fontSize={12} unit=" mg" />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <div className="chart-tooltip">
-                      <p className="tooltip-date">{data.fullDate}</p>
-                      <p className="tooltip-slot">{data.slot}</p>
-                      <p className="tooltip-value">
-                        <strong>{data.value}</strong> mg/dl
-                      </p>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-            {/* Clinical Target Range Guideline Lines */}
-            <ReferenceLine y={70} stroke="#10b981" strokeDasharray="3 3" label={{ value: 'Low (70)', fill: '#10b981', fontSize: 11 }} />
-            <ReferenceLine y={180} stroke="#f59e0b" strokeDasharray="3 3" label={{ value: 'High (180)', fill: '#f59e0b', fontSize: 11 }} />
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+            <XAxis dataKey="date" />
+            <YAxis domain={[40, 300]} unit=" mg" />
+            <Tooltip />
             <Line
               type="monotone"
               dataKey="value"
               stroke="#2563eb"
-              strokeWidth={3}
-              dot={{ r: 4, fill: '#2563eb', strokeWidth: 2, stroke: '#fff' }}
-              activeDot={{ r: 6 }}
+              strokeWidth={2}
+              isAnimationActive={false} // Disable heavy bounce animations
             />
           </LineChart>
         </ResponsiveContainer>

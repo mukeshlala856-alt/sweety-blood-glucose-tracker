@@ -9,12 +9,10 @@ import { AlertBanner } from '../components/AlertBanner';
 export const Dashboard: React.FC = () => {
   const [readings, setReadings] = useState<Reading[]>([]);
   const [editingReading, setEditingReading] = useState<Reading | null>(null);
-  const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const fetchReadings = async () => {
     try {
-      setLoading(true);
       const res = await api.get('/readings');
       setReadings(res.data.readings || []);
     } catch (err: any) {
@@ -22,8 +20,6 @@ export const Dashboard: React.FC = () => {
         type: 'error',
         message: err.response?.data?.message || 'Failed to load readings.',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -31,68 +27,51 @@ export const Dashboard: React.FC = () => {
     fetchReadings();
   }, []);
 
-  const handleFormSuccess = () => {
+  const handleSuccess = () => {
     setFeedback({
       type: 'success',
-      message: editingReading ? 'Reading updated successfully!' : 'New reading recorded successfully!',
+      message: editingReading ? 'Reading updated successfully.' : 'Reading added successfully.',
     });
     setEditingReading(null);
     fetchReadings();
-
-    // Auto-dismiss alert after 4 seconds
-    setTimeout(() => setFeedback(null), 4000);
-  };
-
-  const handleEditClick = (reading: Reading) => {
-    setEditingReading(reading);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => setFeedback(null), 3500);
   };
 
   const handleDelete = async (id: number) => {
+    if (!window.confirm('Are you sure you want to delete this reading?')) return;
+
     try {
       await api.delete(`/readings/${id}`);
-      setFeedback({ type: 'success', message: 'Reading deleted successfully.' });
+      setFeedback({ type: 'success', message: 'Reading deleted.' });
       fetchReadings();
-      setTimeout(() => setFeedback(null), 4000);
+      setTimeout(() => setFeedback(null), 3500);
     } catch (err: any) {
-      setFeedback({
-        type: 'error',
-        message: err.response?.data?.message || 'Failed to delete reading.',
-      });
+      setFeedback({ type: 'error', message: 'Failed to delete reading.' });
     }
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <div>
-          <h1 className="page-title">Blood Glucose Dashboard</h1>
-          <p className="page-subtitle">Record and review your daily blood sugar levels</p>
-        </div>
-      </div>
+    <div className="container">
+      <h2>Dashboard</h2>
 
       {feedback && <AlertBanner type={feedback.type} message={feedback.message} />}
 
-      {/* Reading Form (Add or Edit) */}
       <ReadingForm
         initialData={editingReading}
-        onSuccess={handleFormSuccess}
+        onSuccess={handleSuccess}
         onCancel={() => setEditingReading(null)}
       />
 
-      {/* Glucose Trend Chart */}
       <GlucoseChart readings={readings} />
 
-      {/* Readings Table */}
-      {loading ? (
-        <div className="loading-state">Loading readings...</div>
-      ) : (
-        <ReadingTable
-          readings={readings}
-          onEdit={handleEditClick}
-          onDelete={handleDelete}
-        />
-      )}
+      <ReadingTable
+        readings={readings}
+        onEdit={(r) => {
+          setEditingReading(r);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };
