@@ -16,12 +16,21 @@ const TIME_SLOTS: TimeSlot[] = [
   'After dinner',
 ];
 
+// Helper to get local date in YYYY-MM-DD
+const getLocalToday = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const ReadingForm: React.FC<ReadingFormProps> = ({
   initialData,
   onSuccess,
   onCancel,
 }) => {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalToday();
 
   const [date, setDate] = useState(todayStr);
   const [slot, setSlot] = useState<TimeSlot>('Morning (fasting)');
@@ -46,18 +55,20 @@ export const ReadingForm: React.FC<ReadingFormProps> = ({
     e.preventDefault();
     setError('');
 
-    // Validations
+    // Kenpath Rule 1: Value is required
     if (!value.trim()) {
       setError('Please enter a glucose value.');
       return;
     }
 
+    // Kenpath Rule 2: Value must be a whole number between 40 and 600
     const num = Number(value);
     if (!Number.isInteger(num) || num < 40 || num > 600) {
       setError('Value must be between 40 and 600 mg/dl.');
       return;
     }
 
+    // Kenpath Rule 5: Date cannot be in the future
     if (date > todayStr) {
       setError('Date cannot be in the future.');
       return;
@@ -95,17 +106,15 @@ export const ReadingForm: React.FC<ReadingFormProps> = ({
 
       <AlertBanner type="error" message={error} />
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="form-row">
           <div className="form-group">
             <label>Date</label>
             <input
               type="date"
-              max={todayStr}
               value={date}
               onChange={(e) => setDate(e.target.value)}
               className="form-input"
-              required
             />
           </div>
 
@@ -130,7 +139,6 @@ export const ReadingForm: React.FC<ReadingFormProps> = ({
               value={value}
               onChange={(e) => setValue(e.target.value)}
               className="form-input"
-              required
             />
           </div>
         </div>

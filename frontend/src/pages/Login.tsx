@@ -41,7 +41,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   return (
     <div className="auth-box">
-      <h2 style={{ textAlign: 'center', marginBottom: 5 }}>Sweety</h2>
+      <h2 style={{ textAlign: 'center', marginBottom: 5 }}>🩸 Sweety</h2>
       <p style={{ textAlign: 'center', color: '#666', marginTop: 0, marginBottom: 20 }}>
         Blood Glucose Tracker
       </p>

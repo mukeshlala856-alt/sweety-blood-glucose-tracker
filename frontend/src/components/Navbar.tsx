@@ -18,7 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({ userName, onLogout }) => {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand">
-        🍯 Sweety Glucose Tracker
+        🩸 Sweety Glucose Tracker
       </Link>
 
       <div className="navbar-links">
