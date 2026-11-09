@@ -34,11 +34,6 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     }
   };
 
-  const handleDemo = () => {
-    setEmail('demo@sweety.com');
-    setPassword('Sweety@123');
-  };
-
   return (
     <div className="auth-box">
       <h2 style={{ textAlign: 'center', marginBottom: 5 }}>🩸 Sweety</h2>
@@ -76,19 +71,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <button
           type="submit"
           className="btn btn-primary"
-          style={{ width: '100%', marginBottom: 10 }}
+          style={{ width: '100%', marginBottom: 15 }}
           disabled={loading}
         >
           {loading ? 'Logging in...' : 'Sign In'}
-        </button>
-
-        <button
-          type="button"
-          onClick={handleDemo}
-          className="btn btn-secondary"
-          style={{ width: '100%', marginBottom: 15 }}
-        >
-          Fill Demo User (demo@sweety.com)
         </button>
       </form>
 
