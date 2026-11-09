@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 
-// Helper to generate JWT token
 const generateToken = (user) => {
   return jwt.sign(
     { id: user.id, name: user.name, email: user.email },
@@ -11,7 +10,6 @@ const generateToken = (user) => {
   );
 };
 
-// Register a new user
 const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -22,17 +20,14 @@ const register = async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check if user already exists
     const existingUser = await pool.query('SELECT id FROM users WHERE email = $1', [normalizedEmail]);
     if (existingUser.rows.length > 0) {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
-    // Hash password with bcrypt
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Save new user
     const insertQuery = `
       INSERT INTO users (name, email, password)
       VALUES ($1, $2, $3)
@@ -58,7 +53,6 @@ const register = async (req, res) => {
   }
 };
 
-// Login existing user
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -69,7 +63,6 @@ const login = async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Find user by email
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
     if (result.rows.length === 0) {
       return res.status(401).json({ message: 'Invalid email or password.' });
@@ -77,7 +70,6 @@ const login = async (req, res) => {
 
     const user = result.rows[0];
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password.' });
@@ -100,7 +92,6 @@ const login = async (req, res) => {
   }
 };
 
-// Get current logged-in user profile
 const getMe = async (req, res) => {
   try {
     const result = await pool.query(

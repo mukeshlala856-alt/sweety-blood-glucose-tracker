@@ -5,31 +5,26 @@ const {
   validateTimeSlot,
 } = require('../utils/validation');
 
-// Add a new reading
 const addReading = async (req, res) => {
   try {
     const userId = req.user.id;
     const { reading_date, time_slot, glucose_value } = req.body;
 
-    // 1. Validate glucose value
     const glucoseError = validateGlucoseValue(glucose_value);
     if (glucoseError) {
       return res.status(400).json({ message: glucoseError });
     }
 
-    // 2. Validate reading date
     const dateError = validateReadingDate(reading_date);
     if (dateError) {
       return res.status(400).json({ message: dateError });
     }
 
-    // 3. Validate time slot
     const slotError = validateTimeSlot(time_slot);
     if (slotError) {
       return res.status(400).json({ message: slotError });
     }
 
-    // 4. Check if slot already recorded for this user on this date
     const existingSlotCheck = await pool.query(
       'SELECT id FROM readings WHERE user_id = $1 AND reading_date = $2 AND time_slot = $3',
       [userId, reading_date, time_slot]
@@ -41,7 +36,6 @@ const addReading = async (req, res) => {
       });
     }
 
-    // 5. Check daily limit (max 4 readings per day)
     const countCheck = await pool.query(
       'SELECT COUNT(*)::int AS count FROM readings WHERE user_id = $1 AND reading_date = $2',
       [userId, reading_date]
@@ -53,7 +47,6 @@ const addReading = async (req, res) => {
       });
     }
 
-    // Insert reading
     const insertQuery = `
       INSERT INTO readings (user_id, reading_date, time_slot, glucose_value)
       VALUES ($1, $2, $3, $4)
@@ -76,7 +69,6 @@ const addReading = async (req, res) => {
   }
 };
 
-// Get all readings for logged-in user (with optional date filter and pagination)
 const getReadings = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -96,7 +88,6 @@ const getReadings = async (req, res) => {
 
     query += ' ORDER BY reading_date DESC, id DESC';
 
-    // Optional pagination
     if (page && limit) {
       const pageNum = Math.max(1, parseInt(page, 10) || 1);
       const limitNum = Math.max(1, parseInt(limit, 10) || 20);
@@ -115,7 +106,6 @@ const getReadings = async (req, res) => {
   }
 };
 
-// Get single reading by ID
 const getReadingById = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -139,14 +129,12 @@ const getReadingById = async (req, res) => {
   }
 };
 
-// Update an existing reading
 const updateReading = async (req, res) => {
   try {
     const userId = req.user.id;
     const readingId = req.params.id;
     const { reading_date, time_slot, glucose_value } = req.body;
 
-    // Check if reading exists and belongs to this user
     const existing = await pool.query(
       "SELECT id, TO_CHAR(reading_date, 'YYYY-MM-DD') AS reading_date, time_slot, glucose_value FROM readings WHERE id = $1 AND user_id = $2",
       [readingId, userId]
@@ -156,7 +144,6 @@ const updateReading = async (req, res) => {
       return res.status(404).json({ message: 'Reading not found.' });
     }
 
-    // Validate inputs
     const targetDate = reading_date || existing.rows[0].reading_date;
     const targetSlot = time_slot || existing.rows[0].time_slot;
     const targetValue = glucose_value !== undefined ? glucose_value : existing.rows[0].glucose_value;
@@ -176,7 +163,6 @@ const updateReading = async (req, res) => {
       return res.status(400).json({ message: slotError });
     }
 
-    // Check duplicate slot if date or slot changed
     const duplicateCheck = await pool.query(
       'SELECT id FROM readings WHERE user_id = $1 AND reading_date = $2 AND time_slot = $3 AND id != $4',
       [userId, targetDate, targetSlot, readingId]
@@ -212,7 +198,6 @@ const updateReading = async (req, res) => {
   }
 };
 
-// Delete a reading
 const deleteReading = async (req, res) => {
   try {
     const userId = req.user.id;

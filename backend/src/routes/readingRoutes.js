@@ -9,7 +9,6 @@ const {
 } = require('../controllers/readingController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// All reading routes are protected
 router.use(authMiddleware);
 
 router.post('/', addReading);

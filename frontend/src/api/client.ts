@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Base API configuration
 const api = axios.create({
   baseURL: 'http://localhost:5000/api',
   headers: {
@@ -8,7 +7,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor: automatically add Bearer token to all requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('sweety_token');
   if (token) {
@@ -17,12 +15,10 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor: handle expired token gracefully
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Token is invalid or expired
       localStorage.removeItem('sweety_token');
       localStorage.removeItem('sweety_user');
       if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {

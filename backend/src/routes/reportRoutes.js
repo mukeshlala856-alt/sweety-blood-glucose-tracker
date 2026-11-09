@@ -7,7 +7,6 @@ const {
 } = require('../controllers/reportController');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// All report routes require authentication
 router.use(authMiddleware);
 
 router.get('/daily', getDailyReport);

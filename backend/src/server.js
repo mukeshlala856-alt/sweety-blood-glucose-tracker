@@ -6,7 +6,6 @@ const pool = require('./config/db');
 
 const PORT = process.env.PORT || 5000;
 
-// Test DB connection before starting listener
 pool.query('SELECT NOW()', (err, res) => {
   if (err) {
     console.error('Failed to connect to PostgreSQL database:', err.message);

@@ -16,7 +16,6 @@ const TIME_SLOTS: TimeSlot[] = [
   'After dinner',
 ];
 
-// Helper to get local date in YYYY-MM-DD
 const getLocalToday = () => {
   const d = new Date();
   const year = d.getFullYear();
@@ -55,20 +54,17 @@ export const ReadingForm: React.FC<ReadingFormProps> = ({
     e.preventDefault();
     setError('');
 
-    // Kenpath Rule 1: Value is required
     if (!value.trim()) {
       setError('Please enter a glucose value.');
       return;
     }
 
-    // Kenpath Rule 2: Value must be a whole number between 40 and 600
     const num = Number(value);
     if (!Number.isInteger(num) || num < 40 || num > 600) {
       setError('Value must be between 40 and 600 mg/dl.');
       return;
     }
 
-    // Kenpath Rule 5: Date cannot be in the future
     if (date > todayStr) {
       setError('Date cannot be in the future.');
       return;

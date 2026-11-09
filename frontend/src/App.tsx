@@ -13,7 +13,6 @@ export const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check local storage on mount
     const savedUser = localStorage.getItem('sweety_user');
     const token = localStorage.getItem('sweety_token');
 

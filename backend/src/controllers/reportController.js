@@ -1,10 +1,9 @@
 const pool = require('../config/db');
 
-// Helper to calculate previous month date range
 const getPreviousMonthRange = (dateString) => {
   const parts = dateString.split('-');
   const year = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10); // 1-12
+  const month = parseInt(parts[1], 10);
 
   let prevYear = year;
   let prevMonth = month - 1;
@@ -17,14 +16,12 @@ const getPreviousMonthRange = (dateString) => {
   const paddedPrevMonth = String(prevMonth).padStart(2, '0');
   const startDate = `${prevYear}-${paddedPrevMonth}-01`;
 
-  // Last day of previous month
   const lastDay = new Date(Date.UTC(prevYear, prevMonth, 0)).getUTCDate();
   const endDate = `${prevYear}-${paddedPrevMonth}-${String(lastDay).padStart(2, '0')}`;
 
   return { startDate, endDate };
 };
 
-// Helper to calculate month-to-date range
 const getMonthToDateRange = (dateString) => {
   const parts = dateString.split('-');
   const year = parts[0];
@@ -36,13 +33,11 @@ const getMonthToDateRange = (dateString) => {
   return { startDate, endDate };
 };
 
-// Daily Report
 const getDailyReport = async (req, res) => {
   try {
     const userId = req.user.id;
     const selectedDate = req.query.date || new Date().toISOString().split('T')[0];
 
-    // Get aggregated statistics
     const statsQuery = `
       SELECT
         COUNT(*)::int AS total_readings,
@@ -55,7 +50,6 @@ const getDailyReport = async (req, res) => {
     const statsResult = await pool.query(statsQuery, [userId, selectedDate]);
     const stats = statsResult.rows[0];
 
-    // Get individual slot readings for this day
     const readingsQuery = `
       SELECT id, time_slot, glucose_value, created_at
       FROM readings
@@ -83,7 +77,6 @@ const getDailyReport = async (req, res) => {
   }
 };
 
-// Month-to-Date Report
 const getMonthToDateReport = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -122,7 +115,6 @@ const getMonthToDateReport = async (req, res) => {
   }
 };
 
-// Monthly (Previous Month) Report
 const getMonthlyReport = async (req, res) => {
   try {
     const userId = req.user.id;

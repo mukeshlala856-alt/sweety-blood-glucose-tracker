@@ -17,11 +17,10 @@ interface GlucoseChartProps {
 export const GlucoseChart: React.FC<GlucoseChartProps> = ({ readings }) => {
   if (!readings || readings.length === 0) return null;
 
-  // Format data for chart (sorted oldest to newest)
   const chartData = [...readings]
     .sort((a, b) => new Date(a.reading_date).getTime() - new Date(b.reading_date).getTime())
     .map((r) => ({
-      date: r.reading_date.slice(5), // 'MM-DD'
+      date: r.reading_date.slice(5),
       value: r.glucose_value,
       slot: r.time_slot,
     }));
@@ -41,7 +40,7 @@ export const GlucoseChart: React.FC<GlucoseChartProps> = ({ readings }) => {
               dataKey="value"
               stroke="#2563eb"
               strokeWidth={2}
-              isAnimationActive={false} // Disable heavy bounce animations
+              isAnimationActive={false}
             />
           </LineChart>
         </ResponsiveContainer>
